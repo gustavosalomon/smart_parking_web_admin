@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from flask_cors import CORS
@@ -6,7 +7,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Conexión a Mongo Atlas
-client = MongoClient("mongodb+srv://admin:admin123@cluster0.2owahcw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+MONGO_URI = os.getenv("MONGO_URI")
+client = MongoClient(MONGO_URI)
 db = client["smart_parking_web"]  # Nombre de la DB
 admins = db["admin"]   # Colección
 
