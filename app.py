@@ -7,8 +7,8 @@ CORS(app)
 
 # Conexión a Mongo Atlas
 client = MongoClient("mongodb+srv://admin:admin123@cluster0.2owahcw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-db = client["adminDB"]  # Nombre de la DB
-admins = db["admins"]   # Colección
+db = client["smart_parking_web"]  # Nombre de la DB
+admins = db["admin"]   # Colección
 
 @app.route("/api/admin/login", methods=["POST"])
 def login():
