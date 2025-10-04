@@ -6,24 +6,33 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Leer la URI desde variable de entorno (Render)
+# Leer la URI desde variable de entorno
 MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    raise RuntimeError(
+        "ERROR: Debes definir la variable de entorno MONGO_URI en Render.\n"
+        "Ej: mongodb+srv://admin:admin123@cluster0.2owahcw.mongodb.net/?retryWrites=true&w=majority"
+    )
 
-# Conectar a tu base de datos
-client = MongoClient(MONGO_URI)
-db = client["smart_parking_web"]   # 👈 nombre de tu base
-admins = db["admin"]               # 👈 nombre de la colección
+# Conectar a MongoDB Atlas
+try:
+    client = MongoClient(MONGO_URI)
+    db = client["smart_parking_web"]  # tu base de datos
+    admins = db["admin"]              # tu colección
+    print("✅ Conexión a MongoDB Atlas exitosa")
+except Exception as e:
+    print("❌ Error conectando a MongoDB Atlas:", e)
+    raise
 
 @app.route("/api/admin/login", methods=["POST"])
 def login():
-    data = request.json
+    data = request.get_json(force=True)
     username = data.get("username")
     password = data.get("password")
 
     if not username or not password:
         return jsonify({"error": "Faltan credenciales"}), 400
 
-    # Buscar usuario en la colección admin
     admin = admins.find_one({"username": username, "password": password})
 
     if admin:
@@ -36,4 +45,6 @@ def test():
     return jsonify({"status": "ok", "message": "Servicio de admin funcionando"})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"🚀 Servidor arrancando en puerto {port}")
+    app.run(host="0.0.0.0", port=port)
